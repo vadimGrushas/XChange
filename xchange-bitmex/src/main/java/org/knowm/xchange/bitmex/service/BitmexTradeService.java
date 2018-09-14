@@ -111,7 +111,9 @@ public class BitmexTradeService extends BitmexTradeServiceRaw implements TradeSe
             stopOrder.getOriginalAmount(),
             stopOrder.getStopPrice(),
             null,
-            stopOrder.getId());
+            stopOrder.getId(),
+            null,
+            null);
     return order.getId();
   }
 

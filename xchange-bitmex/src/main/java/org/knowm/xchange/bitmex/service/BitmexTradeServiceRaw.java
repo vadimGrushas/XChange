@@ -93,7 +93,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
         null,
         "Market",
         null,
-        executionInstructions);
+        executionInstructions,
+        null,
+        null);
   }
 
   public BitmexPrivateOrder placeLimitOrder(
@@ -103,6 +105,19 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
       BitmexSide side,
       String clOrdID,
       String executionInstructions) {
+    return placeLimitOrder(
+        symbol, orderQuantity, price, side, clOrdID, executionInstructions, null, null);
+  }
+
+  public BitmexPrivateOrder placeLimitOrder(
+      String symbol,
+      BigDecimal orderQuantity,
+      BigDecimal price,
+      BitmexSide side,
+      String clOrdID,
+      String executionInstructions,
+      String clOrdLinkID,
+      String contingencyType) {
     return updateRateLimit(
         bitmex.placeOrder(
             apiKey,
@@ -116,7 +131,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
             null,
             ORDER_TYPE_LIMIT,
             clOrdID,
-            executionInstructions));
+            executionInstructions,
+            clOrdLinkID,
+            contingencyType));
   }
 
   public List<BitmexPrivateOrder> placeLimitOrderBulk(
@@ -138,7 +155,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
       BigDecimal price,
       String orderId,
       String clOrdID,
-      String origClOrdID) {
+      String origClOrdID,
+      String clOrdLinkID,
+      String contingencyType) {
 
     return updateRateLimit(
         bitmex.replaceOrder(
@@ -152,7 +171,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
             // if clOrdID is not null we should not send orderID
             clOrdID != null ? null : orderId,
             clOrdID,
-            origClOrdID));
+            origClOrdID,
+            clOrdLinkID,
+            contingencyType));
   }
 
   public BitmexPrivateOrder replaceStopOrder(
@@ -160,7 +181,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
       BigDecimal price,
       String orderID,
       String clOrdID,
-      String origClOrdId) {
+      String origClOrdId,
+      String clOrdLinkID,
+      String contingencyType) {
     return updateRateLimit(
         bitmex.replaceOrder(
             apiKey,
@@ -172,7 +195,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
             ORDER_TYPE_LIMIT,
             clOrdID != null ? null : orderID,
             clOrdID,
-            origClOrdId));
+            origClOrdId,
+            clOrdLinkID,
+            contingencyType));
   }
 
   public BitmexPrivateOrder placeStopOrder(
@@ -181,7 +206,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
       BigDecimal orderQuantity,
       BigDecimal stopPrice,
       String executionInstructions,
-      String clOrdID) {
+      String clOrdID,
+      String clOrdLinkID,
+      String contingencyType) {
     return updateRateLimit(
         bitmex.placeOrder(
             apiKey,
@@ -195,7 +222,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
             stopPrice,
             ORDER_TYPE_STOP,
             clOrdID,
-            executionInstructions));
+            executionInstructions,
+            clOrdLinkID,
+            contingencyType));
   }
 
   /**
@@ -205,7 +234,15 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
    *     simpleOrderQty is negative.
    * @param simpleOrderQuantity Order quantity in units of the underlying instrument (i.e. Bitcoin).
    * @param price
-   * @param executionInstructions
+   * @param executionInstructions Optional execution instructions. Valid options:
+   *     ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly,
+   *     Fixed. 'AllOrNone' instruction requires displayQty to be 0. 'MarkPrice', 'IndexPrice' or
+   *     'LastPrice' instruction valid for 'Stop', 'StopLimit', 'MarketIfTouched', and
+   *     'LimitIfTouched' orders.
+   * @param clOrdLinkID Optional Client Order Link ID for contingent orders.
+   * @param contingencyType Optional contingency type for use with clOrdLinkID. Valid options:
+   *     OneCancelsTheOther, OneTriggersTheOther, OneUpdatesTheOtherAbsolute,
+   *     OneUpdatesTheOtherProportional.
    * @return
    */
   public BitmexPrivateOrder placeLimitOrder(
@@ -214,7 +251,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
       BigDecimal orderQuantity,
       BigDecimal simpleOrderQuantity,
       BigDecimal price,
-      String executionInstructions) {
+      String executionInstructions,
+      String clOrdLinkID,
+      String contingencyType) {
     return updateRateLimit(
         bitmex.placeOrder(
             apiKey,
@@ -228,7 +267,9 @@ public class BitmexTradeServiceRaw extends BitmexBaseService {
             null,
             ORDER_TYPE_LIMIT,
             null,
-            executionInstructions));
+            executionInstructions,
+            clOrdLinkID,
+            contingencyType));
   }
 
   public List<BitmexPrivateOrder> cancelAllOrders() {
