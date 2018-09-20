@@ -20,6 +20,7 @@ import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.dto.trade.UserTrades;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.service.trade.TradeService;
+import org.knowm.xchange.service.trade.params.CancelAllOrders;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 import org.knowm.xchange.service.trade.params.CancelOrderParams;
 import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamsTimeSpan;
@@ -116,9 +117,13 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
   public boolean cancelOrder(CancelOrderParams orderParams) throws IOException {
     if (orderParams instanceof CancelOrderByIdParams) {
       return cancelOrder(((CancelOrderByIdParams) orderParams).getOrderId());
-    } else {
-      return false;
     }
+    if (orderParams instanceof CancelAllOrders) {
+      return cancelAllBitfinexOrders();
+    }
+
+    throw new IllegalArgumentException(
+        String.format("Unknown parameter type: %s", orderParams.getClass()));
   }
 
   /**
