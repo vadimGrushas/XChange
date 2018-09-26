@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.bitfinex.common.dto.BitfinexException;
 import org.knowm.xchange.bitfinex.v1.BitfinexAdapters;
@@ -121,12 +122,12 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
         new BitfinexReplaceOrderRequest(
             String.valueOf(exchange.getNonceFactory().createValue()),
             Long.valueOf(order.getId()),
-            null,
+            BitfinexAdapters.adaptCurrencyPair(order.getCurrencyPair()),
             order.getOriginalAmount(),
             order.getLimitPrice(),
             "bitfinex",
-            null,
-            null,
+            BitfinexAdapters.adaptOrderType(order.getType()),
+            BitfinexAdapters.adaptOrderFlagsToType(order.getOrderFlags()),
             order.hasFlag(BitfinexOrderFlags.HIDDEN),
             order.hasFlag(BitfinexOrderFlags.POST_ONLY),
             useRemaining);

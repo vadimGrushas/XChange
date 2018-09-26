@@ -125,6 +125,9 @@ public class BitfinexNewOrderRequest {
   }
 
   public String getAmount() {
+    if (amount == null) {
+      return null;
+    }
 
     return amount.toPlainString();
   }
