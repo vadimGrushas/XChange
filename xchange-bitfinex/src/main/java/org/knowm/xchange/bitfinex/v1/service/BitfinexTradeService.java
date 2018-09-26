@@ -7,10 +7,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.bitfinex.common.dto.BitfinexException;
 import org.knowm.xchange.bitfinex.v1.BitfinexAdapters;
 import org.knowm.xchange.bitfinex.v1.BitfinexOrderType;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexOrderFlags;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexOrderStatusResponse;
+import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexReplaceOrderRequest;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexTradeResponse;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -105,6 +107,36 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
     }
 
     return String.valueOf(newOrder.getId());
+  }
+
+  @Override
+  public String modifyOrder(LimitOrder order) throws IOException {
+
+    boolean useRemaining = false;
+    if (order.getOriginalAmount() == null || order.hasFlag(BitfinexOrderFlags.USE_REMAINING)) {
+      useRemaining = true;
+    }
+
+    BitfinexReplaceOrderRequest request =
+        new BitfinexReplaceOrderRequest(
+            String.valueOf(exchange.getNonceFactory().createValue()),
+            Long.valueOf(order.getId()),
+            null,
+            order.getOriginalAmount(),
+            order.getLimitPrice(),
+            "bitfinex",
+            null,
+            null,
+            order.hasFlag(BitfinexOrderFlags.HIDDEN),
+            order.hasFlag(BitfinexOrderFlags.POST_ONLY),
+            useRemaining);
+    try {
+      BitfinexOrderStatusResponse response =
+          bitfinex.replaceOrder(apiKey, payloadCreator, signatureCreator, request);
+      return String.valueOf(response.getId());
+    } catch (BitfinexException e) {
+      throw handleException(e);
+    }
   }
 
   @Override
