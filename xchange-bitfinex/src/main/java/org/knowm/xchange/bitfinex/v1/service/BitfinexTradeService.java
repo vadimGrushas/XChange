@@ -84,29 +84,8 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
   @Override
   public String placeLimitOrder(LimitOrder limitOrder) throws IOException {
 
-    BitfinexOrderStatusResponse newOrder;
-    if (limitOrder.hasFlag(BitfinexOrderFlags.MARGIN)) {
-      if (limitOrder.hasFlag(BitfinexOrderFlags.FILL_OR_KILL)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_FILL_OR_KILL);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.TRAILING_STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_TRAILING_STOP);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_STOP);
-      } else {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_LIMIT);
-      }
-    } else {
-      if (limitOrder.hasFlag(BitfinexOrderFlags.FILL_OR_KILL)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.FILL_OR_KILL);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.TRAILING_STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.TRAILING_STOP);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.STOP);
-      } else {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.LIMIT);
-      }
-    }
-
+    BitfinexOrderType type = BitfinexAdapters.adaptOrderFlagsToType(limitOrder.getOrderFlags());
+    BitfinexOrderStatusResponse newOrder = placeBitfinexLimitOrder(limitOrder, type);
     return String.valueOf(newOrder.getId());
   }
 
@@ -127,7 +106,7 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
             order.getLimitPrice(),
             "bitfinex",
             BitfinexAdapters.adaptOrderType(order.getType()),
-            BitfinexAdapters.adaptOrderFlagsToType(order.getOrderFlags()),
+            BitfinexAdapters.adaptOrderFlagsToType(order.getOrderFlags()).getValue(),
             order.hasFlag(BitfinexOrderFlags.HIDDEN),
             order.hasFlag(BitfinexOrderFlags.POST_ONLY),
             useRemaining);

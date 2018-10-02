@@ -88,26 +88,26 @@ public final class BitfinexAdapters {
     throw new IllegalArgumentException(String.format("Unexpected type of order: %s", type));
   }
 
-  public static String adaptOrderFlagsToType(Set<Order.IOrderFlags> flags) {
+  public static BitfinexOrderType adaptOrderFlagsToType(Set<Order.IOrderFlags> flags) {
     if (flags.contains(BitfinexOrderFlags.MARGIN)) {
       if (flags.contains(BitfinexOrderFlags.FILL_OR_KILL)) {
-        return BitfinexOrderType.MARGIN_FILL_OR_KILL.getValue();
+        return BitfinexOrderType.MARGIN_FILL_OR_KILL;
       } else if (flags.contains(BitfinexOrderFlags.TRAILING_STOP)) {
-        return BitfinexOrderType.MARGIN_TRAILING_STOP.getValue();
+        return BitfinexOrderType.MARGIN_TRAILING_STOP;
       } else if (flags.contains(BitfinexOrderFlags.STOP)) {
-        return BitfinexOrderType.MARGIN_STOP.getValue();
+        return BitfinexOrderType.MARGIN_STOP;
       } else {
-        return BitfinexOrderType.MARGIN_LIMIT.getValue();
+        return BitfinexOrderType.MARGIN_LIMIT;
       }
     } else {
       if (flags.contains(BitfinexOrderFlags.FILL_OR_KILL)) {
-        return BitfinexOrderType.FILL_OR_KILL.getValue();
+        return BitfinexOrderType.FILL_OR_KILL;
       } else if (flags.contains(BitfinexOrderFlags.TRAILING_STOP)) {
-        return BitfinexOrderType.TRAILING_STOP.getValue();
+        return BitfinexOrderType.TRAILING_STOP;
       } else if (flags.contains(BitfinexOrderFlags.STOP)) {
-        return BitfinexOrderType.STOP.getValue();
+        return BitfinexOrderType.STOP;
       } else {
-        return BitfinexOrderType.LIMIT.getValue();
+        return BitfinexOrderType.LIMIT;
       }
     }
   }

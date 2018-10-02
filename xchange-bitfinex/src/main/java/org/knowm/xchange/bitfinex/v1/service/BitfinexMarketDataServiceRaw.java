@@ -111,6 +111,10 @@ public class BitfinexMarketDataServiceRaw extends BitfinexBaseService {
   }
 
   public List<BitfinexSymbolDetail> getSymbolDetails() throws IOException {
-    return bitfinex.getSymbolsDetails();
+      try {
+          return bitfinex.getSymbolsDetails();
+      } catch (BitfinexException e) {
+          throw handleException(e);
+      }
   }
 }
