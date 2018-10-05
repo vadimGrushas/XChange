@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
 import org.knowm.xchange.bitfinex.v1.dto.account.BitfinexAccountFeesResponse;
 import org.knowm.xchange.bitfinex.v1.dto.account.BitfinexBalancesResponse;
 import org.knowm.xchange.bitfinex.v1.dto.account.BitfinexDepositWithdrawalHistoryResponse;
@@ -18,10 +20,12 @@ import org.knowm.xchange.bitfinex.v1.dto.marketdata.BitfinexSymbolDetail;
 import org.knowm.xchange.bitfinex.v1.dto.marketdata.BitfinexTicker;
 import org.knowm.xchange.bitfinex.v1.dto.marketdata.BitfinexTrade;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexAccountInfosResponse;
+import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexOrderFlags;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexOrderStatusResponse;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexTradeResponse;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
@@ -69,6 +73,43 @@ public final class BitfinexAdapters {
       currencyPairs.add(adaptCurrencyPair(symbol));
     }
     return currencyPairs;
+  }
+
+  public static String adaptOrderType(OrderType type) {
+    switch (type) {
+      case BID:
+      case EXIT_BID:
+        return "buy";
+      case ASK:
+      case EXIT_ASK:
+        return "sell";
+    }
+
+    throw new IllegalArgumentException(String.format("Unexpected type of order: %s", type));
+  }
+
+  public static BitfinexOrderType adaptOrderFlagsToType(Set<Order.IOrderFlags> flags) {
+    if (flags.contains(BitfinexOrderFlags.MARGIN)) {
+      if (flags.contains(BitfinexOrderFlags.FILL_OR_KILL)) {
+        return BitfinexOrderType.MARGIN_FILL_OR_KILL;
+      } else if (flags.contains(BitfinexOrderFlags.TRAILING_STOP)) {
+        return BitfinexOrderType.MARGIN_TRAILING_STOP;
+      } else if (flags.contains(BitfinexOrderFlags.STOP)) {
+        return BitfinexOrderType.MARGIN_STOP;
+      } else {
+        return BitfinexOrderType.MARGIN_LIMIT;
+      }
+    } else {
+      if (flags.contains(BitfinexOrderFlags.FILL_OR_KILL)) {
+        return BitfinexOrderType.FILL_OR_KILL;
+      } else if (flags.contains(BitfinexOrderFlags.TRAILING_STOP)) {
+        return BitfinexOrderType.TRAILING_STOP;
+      } else if (flags.contains(BitfinexOrderFlags.STOP)) {
+        return BitfinexOrderType.STOP;
+      } else {
+        return BitfinexOrderType.LIMIT;
+      }
+    }
   }
 
   public static CurrencyPair adaptCurrencyPair(String bitfinexSymbol) {

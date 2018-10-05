@@ -1,6 +1,7 @@
 package org.knowm.xchange.bitfinex.v1;
 
 import org.knowm.xchange.bitfinex.common.dto.BitfinexException;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 
 /** A central place for shared Bitfinex properties */
@@ -9,8 +10,13 @@ public final class BitfinexUtils {
   /** private Constructor */
   private BitfinexUtils() {}
 
-  public static String adaptXchangeCurrency(String xchangeSymbol) {
-    String currency = xchangeSymbol.toLowerCase();
+  public static String adaptXchangeCurrency(Currency xchangeSymbol) {
+
+    if (xchangeSymbol == null) {
+      return null;
+    }
+
+    String currency = xchangeSymbol.toString().toLowerCase();
     if (currency.equals("dash")) {
       currency = "dsh";
     }
@@ -22,8 +28,11 @@ public final class BitfinexUtils {
 
   public static String toPairString(CurrencyPair currencyPair) {
 
-    return adaptXchangeCurrency(currencyPair.base.toString())
-        + adaptXchangeCurrency(currencyPair.counter.toString());
+    if (currencyPair == null) {
+      return null;
+    }
+
+    return adaptXchangeCurrency(currencyPair.base) + adaptXchangeCurrency(currencyPair.counter);
   }
 
   /**

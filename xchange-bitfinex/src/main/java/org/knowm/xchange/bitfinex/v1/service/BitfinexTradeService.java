@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.bitfinex.common.dto.BitfinexException;
 import org.knowm.xchange.bitfinex.v1.BitfinexAdapters;
 import org.knowm.xchange.bitfinex.v1.BitfinexOrderType;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexOrderFlags;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexOrderStatusResponse;
+import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexReplaceOrderRequest;
 import org.knowm.xchange.bitfinex.v1.dto.trade.BitfinexTradeResponse;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -20,6 +23,7 @@ import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.dto.trade.UserTrades;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.service.trade.TradeService;
+import org.knowm.xchange.service.trade.params.CancelAllOrders;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 import org.knowm.xchange.service.trade.params.CancelOrderParams;
 import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamsTimeSpan;
@@ -80,30 +84,39 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
   @Override
   public String placeLimitOrder(LimitOrder limitOrder) throws IOException {
 
-    BitfinexOrderStatusResponse newOrder;
-    if (limitOrder.hasFlag(BitfinexOrderFlags.MARGIN)) {
-      if (limitOrder.hasFlag(BitfinexOrderFlags.FILL_OR_KILL)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_FILL_OR_KILL);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.TRAILING_STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_TRAILING_STOP);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_STOP);
-      } else {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.MARGIN_LIMIT);
-      }
-    } else {
-      if (limitOrder.hasFlag(BitfinexOrderFlags.FILL_OR_KILL)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.FILL_OR_KILL);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.TRAILING_STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.TRAILING_STOP);
-      } else if (limitOrder.hasFlag(BitfinexOrderFlags.STOP)) {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.STOP);
-      } else {
-        newOrder = placeBitfinexLimitOrder(limitOrder, BitfinexOrderType.LIMIT);
-      }
+    BitfinexOrderType type = BitfinexAdapters.adaptOrderFlagsToType(limitOrder.getOrderFlags());
+    BitfinexOrderStatusResponse newOrder = placeBitfinexLimitOrder(limitOrder, type);
+    return String.valueOf(newOrder.getId());
+  }
+
+  @Override
+  public String modifyOrder(LimitOrder order) throws IOException {
+
+    boolean useRemaining = false;
+    if (order.getOriginalAmount() == null || order.hasFlag(BitfinexOrderFlags.USE_REMAINING)) {
+      useRemaining = true;
     }
 
-    return String.valueOf(newOrder.getId());
+    BitfinexReplaceOrderRequest request =
+        new BitfinexReplaceOrderRequest(
+            String.valueOf(exchange.getNonceFactory().createValue()),
+            Long.valueOf(order.getId()),
+            BitfinexAdapters.adaptCurrencyPair(order.getCurrencyPair()),
+            order.getOriginalAmount(),
+            order.getLimitPrice(),
+            "bitfinex",
+            BitfinexAdapters.adaptOrderType(order.getType()),
+            BitfinexAdapters.adaptOrderFlagsToType(order.getOrderFlags()).getValue(),
+            order.hasFlag(BitfinexOrderFlags.HIDDEN),
+            order.hasFlag(BitfinexOrderFlags.POST_ONLY),
+            useRemaining);
+    try {
+      BitfinexOrderStatusResponse response =
+          bitfinex.replaceOrder(apiKey, payloadCreator, signatureCreator, request);
+      return String.valueOf(response.getId());
+    } catch (BitfinexException e) {
+      throw handleException(e);
+    }
   }
 
   @Override
@@ -116,9 +129,13 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
   public boolean cancelOrder(CancelOrderParams orderParams) throws IOException {
     if (orderParams instanceof CancelOrderByIdParams) {
       return cancelOrder(((CancelOrderByIdParams) orderParams).getOrderId());
-    } else {
-      return false;
     }
+    if (orderParams instanceof CancelAllOrders) {
+      return cancelAllBitfinexOrders();
+    }
+
+    throw new IllegalArgumentException(
+        String.format("Unknown parameter type: %s", orderParams.getClass()));
   }
 
   /**
