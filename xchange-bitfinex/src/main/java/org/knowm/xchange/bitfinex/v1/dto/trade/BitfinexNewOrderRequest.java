@@ -133,7 +133,9 @@ public class BitfinexNewOrderRequest {
   }
 
   public String getPrice() {
-
+    if (price == null) {
+      return null;
+    }
     return price.toPlainString();
   }
 }

@@ -38,7 +38,9 @@ public class BitfinexTradeServiceIntegration {
 
   @After
   public void teardown() throws IOException {
-    exchange.getTradeService().cancelOrder(new CancelAllOrders() {});
+    if (exchange != null) {
+      exchange.getTradeService().cancelOrder(new CancelAllOrders() {});
+    }
   }
 
   @Test
