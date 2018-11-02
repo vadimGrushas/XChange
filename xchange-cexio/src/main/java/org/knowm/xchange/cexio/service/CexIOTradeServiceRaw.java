@@ -199,9 +199,15 @@ public class CexIOTradeServiceRaw extends CexIOBaseService {
         (String) orderRaw.get("tfa:" + order.symbol2));
   }
 
-  public Map getOrderTransactions(String orderId) throws IOException {
-    return cexIOAuthenticated.getOrderTransactions(
+  public CexIOOrderWithTransactions getOrderTransactions(String orderId) throws IOException {
+    CexIOOrderTransactionsResponse response = cexIOAuthenticated.getOrderTransactions(
         signatureCreator, new CexioSingleIdRequest(orderId));
+
+    if (response.getError() != null) {
+      throw new ExchangeException(response.getError());
+    }
+
+    return response.getData();
   }
 
   public static class CexIOTradeHistoryParams
