@@ -16,14 +16,7 @@ public final class BitfinexUtils {
       return null;
     }
 
-    String currency = xchangeSymbol.toString().toLowerCase();
-    if (currency.equals("dash")) {
-      currency = "dsh";
-    }
-    if (currency.equals("qtum")) {
-      currency = "qtm";
-    }
-    return currency;
+    return xchangeSymbol.toString().toLowerCase();
   }
 
   public static String toPairString(CurrencyPair currencyPair) {
