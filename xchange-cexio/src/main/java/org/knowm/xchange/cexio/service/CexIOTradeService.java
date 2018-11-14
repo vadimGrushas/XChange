@@ -18,6 +18,7 @@ import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.dto.trade.UserTrades;
 import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
 import org.knowm.xchange.service.trade.TradeService;
+import org.knowm.xchange.service.trade.params.CancelOrderByCurrencyPair;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
 import org.knowm.xchange.service.trade.params.CancelOrderParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
@@ -79,8 +80,11 @@ public class CexIOTradeService extends CexIOTradeServiceRaw implements TradeServ
   public boolean cancelOrder(CancelOrderParams orderParams) throws IOException {
     if (orderParams instanceof CancelOrderByIdParams) {
       return cancelOrder(((CancelOrderByIdParams) orderParams).getOrderId());
+    } else if (orderParams instanceof CancelOrderByCurrencyPair) {
+      cancelCexIOOrders(((CancelOrderByCurrencyPair) orderParams).getCurrencyPair());
+      return true;
     } else {
-      return false;
+          throw new IllegalArgumentException(String.format("Unknown parameter type: %s", orderParams.getClass()));
     }
   }
 
