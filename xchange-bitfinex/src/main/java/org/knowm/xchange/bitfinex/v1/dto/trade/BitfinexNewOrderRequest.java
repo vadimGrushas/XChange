@@ -57,8 +57,12 @@ public class BitfinexNewOrderRequest {
     this.request = "/v1/order/new";
     this.nonce = nonce;
     this.symbol = symbol;
-    this.amount = amount.toPlainString();
-    this.price = price.toPlainString();
+    if (amount != null) {
+      this.amount = amount.toPlainString();
+    }
+    if (price != null) {
+      this.price = price.toPlainString();
+    }
     this.exchange = exchange;
     this.side = side;
     this.type = type;
