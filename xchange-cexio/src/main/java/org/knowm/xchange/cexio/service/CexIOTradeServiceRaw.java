@@ -17,6 +17,7 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.service.trade.params.*;
 
@@ -50,7 +51,25 @@ public class CexIOTradeServiceRaw extends CexIOBaseService {
             new PlaceOrderRequest(
                 (limitOrder.getType() == BID ? CexIOOrder.Type.buy : CexIOOrder.Type.sell),
                 limitOrder.getLimitPrice(),
-                limitOrder.getOriginalAmount()));
+                limitOrder.getOriginalAmount(),
+                  "limit"));
+    if (order.getErrorMessage() != null) {
+      throw new ExchangeException(order.getErrorMessage());
+    }
+    return order;
+  }
+
+  public CexIOOrder placeCexIOMarketOrder(MarketOrder marketOrder) throws IOException {
+    CexIOOrder order =
+            cexIOAuthenticated.placeOrder(
+                    signatureCreator,
+                    marketOrder.getCurrencyPair().base.getCurrencyCode(),
+                    marketOrder.getCurrencyPair().counter.getCurrencyCode(),
+                    new PlaceOrderRequest(
+                            (marketOrder.getType() == BID ? CexIOOrder.Type.buy : CexIOOrder.Type.sell),
+                            null,
+                            marketOrder.getOriginalAmount(),
+                            "market"));
     if (order.getErrorMessage() != null) {
       throw new ExchangeException(order.getErrorMessage());
     }
