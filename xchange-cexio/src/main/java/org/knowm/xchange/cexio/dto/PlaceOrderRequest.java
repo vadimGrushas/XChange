@@ -7,10 +7,12 @@ public class PlaceOrderRequest extends CexIORequest {
   public final CexIOOrder.Type type;
   public final BigDecimal price;
   public final BigDecimal amount;
+  public final String order_type;
 
-  public PlaceOrderRequest(CexIOOrder.Type type, BigDecimal price, BigDecimal amount) {
+  public PlaceOrderRequest(CexIOOrder.Type type, BigDecimal price, BigDecimal amount, String orderType) {
     this.type = type;
     this.price = price;
     this.amount = amount;
+    this.order_type = orderType;
   }
 }

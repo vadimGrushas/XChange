@@ -6,9 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.cexio.CexIOAdapters;
-import org.knowm.xchange.cexio.dto.trade.CexIOArchivedOrder;
-import org.knowm.xchange.cexio.dto.trade.CexIOOpenOrder;
-import org.knowm.xchange.cexio.dto.trade.CexIOOrder;
+import org.knowm.xchange.cexio.dto.trade.*;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.marketdata.Trades;
 import org.knowm.xchange.dto.trade.LimitOrder;
@@ -17,6 +15,7 @@ import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.dto.trade.UserTrades;
 import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
+import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.CancelOrderByCurrencyPair;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
@@ -58,21 +57,26 @@ public class CexIOTradeService extends CexIOTradeServiceRaw implements TradeServ
 
   @Override
   public String placeMarketOrder(MarketOrder marketOrder) throws IOException {
+      /*
+    Only in market order!
+    Presently, the exchange is designed in such way that, depending on the BID/ASK the currency changes
+      (accordingly, you must specify the amount in another currency)
+    Example: CurrencyPair.BCH_USD, Order.OrderType.ASK, Amount = 0.02 (BCH)
+    Example: CurrencyPair.BCH_USD, Order.OrderType.BID, Amount = 20 (USD)
+    Сurrently cannot be implemented!
+    */
 
-    throw new NotAvailableFromExchangeException();
+    throw new NotYetImplementedForExchangeException();
   }
 
   @Override
   public String placeLimitOrder(LimitOrder limitOrder) throws IOException {
-
     CexIOOrder order = placeCexIOLimitOrder(limitOrder);
-
     return Long.toString(order.getId());
   }
 
   @Override
   public boolean cancelOrder(String orderId) throws IOException {
-
     return cancelCexIOOrder(orderId);
   }
 
@@ -86,6 +90,13 @@ public class CexIOTradeService extends CexIOTradeServiceRaw implements TradeServ
     } else {
           throw new IllegalArgumentException(String.format("Unknown parameter type: %s", orderParams.getClass()));
     }
+  }
+
+  @Override
+  public String modifyOrder(LimitOrder limitOrder) throws IOException {
+    CexIOCancelReplaceOrderResponse response = cancelReplaceCexIOOrder(limitOrder.getCurrencyPair(),
+            limitOrder.getType(), limitOrder.getId(), limitOrder.getOriginalAmount(), limitOrder.getLimitPrice());
+    return response.getId();
   }
 
   @Override
