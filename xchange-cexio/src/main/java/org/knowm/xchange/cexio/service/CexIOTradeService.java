@@ -57,7 +57,7 @@ public class CexIOTradeService extends CexIOTradeServiceRaw implements TradeServ
 
   @Override
   public String placeMarketOrder(MarketOrder marketOrder) throws IOException {
-      /*
+    /*
     Only in market order!
     Presently, the exchange is designed in such way that, depending on the BID/ASK the currency changes
       (accordingly, you must specify the amount in another currency)
@@ -88,14 +88,20 @@ public class CexIOTradeService extends CexIOTradeServiceRaw implements TradeServ
       cancelCexIOOrders(((CancelOrderByCurrencyPair) orderParams).getCurrencyPair());
       return true;
     } else {
-          throw new IllegalArgumentException(String.format("Unknown parameter type: %s", orderParams.getClass()));
+      throw new IllegalArgumentException(
+          String.format("Unknown parameter type: %s", orderParams.getClass()));
     }
   }
 
   @Override
-  public String modifyOrder(LimitOrder limitOrder) throws IOException {
-    CexIOCancelReplaceOrderResponse response = cancelReplaceCexIOOrder(limitOrder.getCurrencyPair(),
-            limitOrder.getType(), limitOrder.getId(), limitOrder.getOriginalAmount(), limitOrder.getLimitPrice());
+  public String changeOrder(LimitOrder limitOrder) throws IOException {
+    CexIOCancelReplaceOrderResponse response =
+        cancelReplaceCexIOOrder(
+            limitOrder.getCurrencyPair(),
+            limitOrder.getType(),
+            limitOrder.getId(),
+            limitOrder.getOriginalAmount(),
+            limitOrder.getLimitPrice());
     return response.getId();
   }
 

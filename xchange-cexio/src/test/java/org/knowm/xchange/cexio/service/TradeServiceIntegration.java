@@ -108,7 +108,7 @@ public class TradeServiceIntegration {
   }
 
   @Test
-  public void modifyOrder() throws IOException, InterruptedException {
+  public void changeOrder() throws IOException, InterruptedException {
     BigDecimal modifyPrice = new BigDecimal(302);
     BigDecimal endPrice = new BigDecimal(304);
 
@@ -116,11 +116,11 @@ public class TradeServiceIntegration {
 
     LimitOrder order2 = new LimitOrder(order.getType(), order.getOriginalAmount(), order.getCurrencyPair(),
             orderId, order.getTimestamp(), modifyPrice);
-    String orderId2 = tradeService.modifyOrder(order2);
+    String orderId2 = tradeService.changeOrder(order2);
 
     LimitOrder order3 = new LimitOrder(order.getType(), order.getOriginalAmount(), order.getCurrencyPair(),
             orderId2, order.getTimestamp(), endPrice);
-    String orderId3 = tradeService.modifyOrder(order3);
+    String orderId3 = tradeService.changeOrder(order3);
 
     List<Order> orders = (List<Order>) tradeService.getOrder(orderId, orderId2, orderId3);
 

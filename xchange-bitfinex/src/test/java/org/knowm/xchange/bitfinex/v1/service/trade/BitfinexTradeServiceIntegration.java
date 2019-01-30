@@ -61,7 +61,7 @@ public class BitfinexTradeServiceIntegration {
             .id(orderId1)
             .build();
 
-    String orderId2 = exchange.getTradeService().modifyOrder(limitOrder2);
+    String orderId2 = exchange.getTradeService().changeOrder(limitOrder2);
     assertThat(orderId2).isNotBlank();
 
     LimitOrder expectedOrder1 =
