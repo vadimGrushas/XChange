@@ -116,7 +116,6 @@ public class BitmexTradeService extends BitmexTradeServiceRaw implements TradeSe
         replaceOrder(
             new BitmexReplaceOrderParameters.Builder()
                 .setOrderId(limitOrder.getId())
-                .setClOrdId(limitOrder.getId())
                 .setOrderQuantity(limitOrder.getOriginalAmount())
                 .setPrice(limitOrder.getLimitPrice())
                 .build());
