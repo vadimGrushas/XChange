@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
-
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;

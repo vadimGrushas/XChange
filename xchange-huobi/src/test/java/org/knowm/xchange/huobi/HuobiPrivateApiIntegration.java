@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
-
 import org.junit.*;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
