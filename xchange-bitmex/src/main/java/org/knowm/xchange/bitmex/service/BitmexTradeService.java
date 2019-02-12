@@ -178,8 +178,7 @@ public class BitmexTradeService extends BitmexTradeServiceRaw implements TradeSe
     }
 
     List<UserTrade> userTrades =
-        getTradeHistory(symbol, null, null, null, start, false, startTime, endTime)
-            .stream()
+        getTradeHistory(symbol, null, null, null, start, false, startTime, endTime).stream()
             .map(BitmexAdapters::adoptUserTrade)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
