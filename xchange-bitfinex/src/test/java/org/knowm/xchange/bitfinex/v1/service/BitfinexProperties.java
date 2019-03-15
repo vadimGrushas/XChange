@@ -14,7 +14,7 @@ public class BitfinexProperties {
 
   private String apiKey;
   private String secretKey;
-  private boolean valid = false;
+  private boolean valid;
 
   public BitfinexProperties() throws IOException {
 

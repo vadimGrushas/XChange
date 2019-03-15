@@ -107,10 +107,8 @@ public class BitfinexTradeService extends BitfinexTradeServiceRaw implements Tra
   @Override
   public String changeOrder(LimitOrder order) throws IOException {
 
-    boolean useRemaining = false;
-    if (order.getOriginalAmount() == null || order.hasFlag(BitfinexOrderFlags.USE_REMAINING)) {
-      useRemaining = true;
-    }
+    boolean useRemaining =
+        order.getOriginalAmount() == null || order.hasFlag(BitfinexOrderFlags.USE_REMAINING);
 
     BitfinexReplaceOrderRequest request =
         new BitfinexReplaceOrderRequest(

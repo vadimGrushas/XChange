@@ -43,7 +43,7 @@ public class BitfinexTradeServiceIntegration {
   }
 
   @Test
-  public void placeLimitOrderAndModifyIt() throws Exception {
+  public void placeLimitOrderAndChangeIt() throws Exception {
 
     LimitOrder limitOrder1 =
         new LimitOrder.Builder(Order.OrderType.BID, CurrencyPair.XRP_USD)
