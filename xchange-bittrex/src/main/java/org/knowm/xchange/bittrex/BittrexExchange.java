@@ -1,19 +1,27 @@
 package org.knowm.xchange.bittrex;
 
-import java.io.IOException;
-import java.util.List;
 import org.knowm.xchange.BaseExchange;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.bittrex.dto.BittrexException;
+import org.knowm.xchange.bittrex.dto.marketdata.BittrexCurrency;
 import org.knowm.xchange.bittrex.dto.marketdata.BittrexSymbol;
 import org.knowm.xchange.bittrex.service.BittrexAccountService;
 import org.knowm.xchange.bittrex.service.BittrexMarketDataService;
 import org.knowm.xchange.bittrex.service.BittrexMarketDataServiceRaw;
 import org.knowm.xchange.bittrex.service.BittrexTradeService;
+import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.meta.CurrencyMetaData;
+import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
+import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.utils.nonce.AtomicLongIncrementalTime2013NonceFactory;
 import si.mazi.rescu.SynchronizedValueFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class BittrexExchange extends BaseExchange implements Exchange {
 
@@ -53,8 +61,23 @@ public class BittrexExchange extends BaseExchange implements Exchange {
     try {
       BittrexMarketDataServiceRaw dataService =
           (BittrexMarketDataServiceRaw) this.marketDataService;
+
       List<BittrexSymbol> bittrexSymbols = dataService.getBittrexSymbols();
-      exchangeMetaData = BittrexAdapters.adaptMetaData(bittrexSymbols, exchangeMetaData);
+      List<BittrexCurrency> bittrexCurrencies = dataService.getBittrexCurrencies();
+
+      Map<CurrencyPair, CurrencyPairMetaData> currencyPairMetaData =
+          BittrexAdapters.adaptCurrencyPairMetaData(bittrexSymbols);
+
+      Map<Currency, CurrencyMetaData> currencyMetaData =
+          BittrexAdapters.adaptCurrencyMetaData(bittrexCurrencies);
+
+      exchangeMetaData =
+          new ExchangeMetaData(
+              currencyPairMetaData,
+              currencyMetaData,
+              exchangeMetaData.getPublicRateLimits(),
+              exchangeMetaData.getPrivateRateLimits(),
+              exchangeMetaData.isShareRateLimits());
     } catch (BittrexException e) {
       throw BittrexErrorAdapter.adapt(e);
     }
