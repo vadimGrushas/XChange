@@ -4,20 +4,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BittrexSymbol {
 
-  private String baseCurrency;
-  private String baseCurrencyLong;
-  private String created;
-  private boolean isActive;
-  private String marketCurrency;
-  private String marketCurrencyLong;
-  private String marketName;
-  private Number minTradeSize;
+  private final String baseCurrency;
+  private final String baseCurrencyLong;
+  private final String created;
+  private final boolean isActive;
+  private final boolean isRestricted;
+  private final String marketCurrency;
+  private final String marketCurrencyLong;
+  private final String marketName;
+  private final Number minTradeSize;
 
   public BittrexSymbol(
       @JsonProperty("BaseCurrency") String baseCurrency,
       @JsonProperty("BaseCurrencyLong") String baseCurrencyLong,
       @JsonProperty("Created") String created,
       @JsonProperty("IsActive") boolean isActive,
+      @JsonProperty("IsRestricted") boolean isRestricted,
       @JsonProperty("MarketCurrency") String marketCurrency,
       @JsonProperty("MarketCurrencyLong") String marketCurrencyLong,
       @JsonProperty("MarketName") String marketName,
@@ -27,6 +29,7 @@ public class BittrexSymbol {
     this.baseCurrencyLong = baseCurrencyLong;
     this.created = created;
     this.isActive = isActive;
+    this.isRestricted = isRestricted;
     this.marketCurrency = marketCurrency;
     this.marketCurrencyLong = marketCurrencyLong;
     this.marketName = marketName;
@@ -38,19 +41,9 @@ public class BittrexSymbol {
     return this.baseCurrency;
   }
 
-  public void setBaseCurrency(String baseCurrency) {
-
-    this.baseCurrency = baseCurrency;
-  }
-
   public String getBaseCurrencyLong() {
 
     return this.baseCurrencyLong;
-  }
-
-  public void setBaseCurrencyLong(String baseCurrencyLong) {
-
-    this.baseCurrencyLong = baseCurrencyLong;
   }
 
   public String getCreated() {
@@ -58,19 +51,9 @@ public class BittrexSymbol {
     return this.created;
   }
 
-  public void setCreated(String created) {
-
-    this.created = created;
-  }
-
   public boolean getIsActive() {
 
     return this.isActive;
-  }
-
-  public void setIsActive(boolean isActive) {
-
-    this.isActive = isActive;
   }
 
   public String getMarketCurrency() {
@@ -78,19 +61,9 @@ public class BittrexSymbol {
     return this.marketCurrency;
   }
 
-  public void setMarketCurrency(String marketCurrency) {
-
-    this.marketCurrency = marketCurrency;
-  }
-
   public String getMarketCurrencyLong() {
 
     return this.marketCurrencyLong;
-  }
-
-  public void setMarketCurrencyLong(String marketCurrencyLong) {
-
-    this.marketCurrencyLong = marketCurrencyLong;
   }
 
   public String getMarketName() {
@@ -98,19 +71,14 @@ public class BittrexSymbol {
     return this.marketName;
   }
 
-  public void setMarketName(String marketName) {
-
-    this.marketName = marketName;
-  }
-
   public Number getMinTradeSize() {
 
     return this.minTradeSize;
   }
 
-  public void setMinTradeSize(Number minTradeSize) {
+  public boolean isRestricted() {
 
-    this.minTradeSize = minTradeSize;
+    return isRestricted;
   }
 
   @Override
@@ -124,6 +92,8 @@ public class BittrexSymbol {
         + created
         + ", isActive="
         + isActive
+        + ", isRestricted="
+        + isRestricted
         + ", marketCurrency="
         + marketCurrency
         + ", marketCurrencyLong="

@@ -1,19 +1,9 @@
 package org.knowm.xchange.bittrex;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.knowm.xchange.bittrex.dto.account.BittrexBalance;
 import org.knowm.xchange.bittrex.dto.account.BittrexDepositHistory;
 import org.knowm.xchange.bittrex.dto.account.BittrexWithdrawalHistory;
-import org.knowm.xchange.bittrex.dto.marketdata.BittrexLevel;
-import org.knowm.xchange.bittrex.dto.marketdata.BittrexMarketSummary;
-import org.knowm.xchange.bittrex.dto.marketdata.BittrexSymbol;
-import org.knowm.xchange.bittrex.dto.marketdata.BittrexTrade;
+import org.knowm.xchange.bittrex.dto.marketdata.*;
 import org.knowm.xchange.bittrex.dto.trade.BittrexOpenOrder;
 import org.knowm.xchange.bittrex.dto.trade.BittrexOrder;
 import org.knowm.xchange.bittrex.dto.trade.BittrexOrderBase;
@@ -36,6 +26,10 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.UserTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public final class BittrexAdapters {
 
@@ -127,6 +121,43 @@ public final class BittrexAdapters {
 
   public static LimitOrder adaptOrder(BittrexOpenOrder order) {
     return adaptOrder(order, adaptOrderStatus(order));
+  }
+
+  public static Map<CurrencyPair, CurrencyPairMetaData> adaptCurrencyPairMetaData(
+      List<BittrexSymbol> rawSymbols) {
+
+    return rawSymbols.stream()
+        .collect(
+            Collectors.toMap(
+                BittrexAdapters::createCurrencyPair, BittrexAdapters::createPairMetaData));
+  }
+
+  public static Map<Currency, CurrencyMetaData> adaptCurrencyMetaData(
+      List<BittrexCurrency> bittrexCurrencies) {
+    return bittrexCurrencies.stream()
+        .collect(
+            Collectors.toMap(
+                BittrexAdapters::createCurrency, BittrexAdapters::createCurrencyMetaData));
+  }
+
+  private static Currency createCurrency(BittrexCurrency rawCurrency) {
+    return new Currency(rawCurrency.getCurrency());
+  }
+
+  private static CurrencyMetaData createCurrencyMetaData(BittrexCurrency rawCurrency) {
+    return new CurrencyMetaData(null, rawCurrency.getTxFee());
+  }
+
+  private static CurrencyPairMetaData createPairMetaData(BittrexSymbol symbol) {
+    BigDecimal minAmount = BigDecimal.valueOf(symbol.getMinTradeSize().doubleValue());
+    return new CurrencyPairMetaData(null, minAmount, null, null, null);
+  }
+
+  private static CurrencyPair createCurrencyPair(BittrexSymbol bittrexSymbol) {
+
+    String baseSymbol = bittrexSymbol.getMarketCurrency();
+    String counterSymbol = bittrexSymbol.getBaseCurrency();
+    return new CurrencyPair(baseSymbol, counterSymbol);
   }
 
   private static OrderStatus adaptOrderStatus(BittrexOrder order) {
